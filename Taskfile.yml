@@ -1,0 +1,16 @@
+version: '3'
+tasks:
+  default:
+    desc: Show the available tasks
+    cmd: task --list
+  kind-create:
+    desc: Create a new kind cluster
+    cmd: kind create cluster --name {{.KIND_CLUSTER_NAME}} --config {{.KIND_CONFIG}}
+    vars:
+      KIND_CLUSTER_NAME: my-kind-cluster
+      KIND_CONFIG: kind.config.yaml
+  kind-delete:
+    desc: Delete the kind cluster
+    cmd: kind delete cluster --name {{.KIND_CLUSTER_NAME}}
+    vars:
+      KIND_CLUSTER_NAME: my-kind-cluster
