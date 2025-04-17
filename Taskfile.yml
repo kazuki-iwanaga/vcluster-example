@@ -3,6 +3,7 @@ tasks:
   default:
     desc: Show the available tasks
     cmd: task --list
+    silent: true
   kind-create:
     desc: Create a new kind cluster
     cmd: kind create cluster --name {{.KIND_CLUSTER_NAME}} --config {{.KIND_CONFIG}}
