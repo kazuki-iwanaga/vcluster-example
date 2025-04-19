@@ -1,26 +1,35 @@
-# https://docs.nginx.com/nginx-gateway-fabric/get-started/#set-up-a-nodeport
-apiVersion: v1
-kind: Service
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
 metadata:
-  name: nginx-gateway
-  namespace: nginx-gateway
-  labels:
-    app.kubernetes.io/name: nginx-gateway-fabric
-    app.kubernetes.io/instance: ngf
-    app.kubernetes.io/version: "1.6.2"
+  name: gateway
 spec:
-  type: NodePort
-  selector:
-    app.kubernetes.io/name: nginx-gateway-fabric
-    app.kubernetes.io/instance: ngf
-  ports:
+  gatewayClassName: nginx
+  listeners:
     - name: http
       port: 80
-      protocol: TCP
-      targetPort: 80
-      nodePort: 31437
-    - name: https
-      port: 443
-      protocol: TCP
-      targetPort: 443
-      nodePort: 31438
+      protocol: HTTP
+      hostname: "*.example.com"
+      allowedRoutes:
+        namespaces:
+          from: All
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: host-hello-httproute
+  namespace: host-hello
+spec:
+  parentRefs:
+    - name: gateway
+      namespace: default
+      sectionName: http
+  hostnames:
+    - "host-hello.example.com"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: hello-app-service
+          port: 80
