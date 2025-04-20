@@ -1,0 +1,48 @@
+version: '3'
+env:
+  KIND_CLUSTER_NAME: my-kind-cluster
+  KIND_CONFIG: kind.config.yaml
+  NGF_VALUES: values/ngf/values.yaml
+  NGF_NAMESPACE: nginx-gateway
+  VCLUSTER_NAME: my-vcluster
+  VCLUSTER_NAMESPACE: my-vcluster
+tasks:
+  default:
+    desc: Show the available tasks
+    cmd: task --list
+    silent: true
+  fmt:
+    desc: Format yaml files
+    cmd: yamlfmt .
+  kind:create:
+    desc: Create a new kind cluster
+    cmd: kind create cluster --name {{.KIND_CLUSTER_NAME}} --config {{.KIND_CONFIG}}
+  kind:delete:
+    desc: Delete the kind cluster
+    cmd: kind delete cluster --name {{.KIND_CLUSTER_NAME}}
+  setup:
+    desc: Setup the kind cluster
+    cmds:
+      # Install Gateway API CRDs
+      - kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/standard-install.yaml
+      # Install Nginx Gateway Fabric
+      - helm upgrade ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric --create-namespace -n {{.NGF_NAMESPACE}} --install --values {{.NGF_VALUES}}
+  apply:
+    desc: Apply the manifests
+    cmds:
+      - kubectl apply -f manifests/
+  hello:
+    desc: Curl for the hello app
+    cmd: curl --resolve host-hello.example.com:80:127.0.0.1 http://host-hello.example.com
+  vcluster:create:
+    desc: Create a vcluster
+    cmd: vcluster create {{.VCLUSTER_NAME}} --namespace {{.VCLUSTER_NAMESPACE}}
+  vcluster:delete:
+    desc: Delete the vcluster
+    cmd: vcluster delete {{.VCLUSTER_NAME}} --namespace {{.VCLUSTER_NAMESPACE}}
+  vcluster:connect:
+    desc: Connect to the vcluster
+    cmd: vcluster connect {{.VCLUSTER_NAME}}
+  vcluster:disconnect:
+    desc: Disconnect from the vcluster
+    cmd: vcluster disconnect
