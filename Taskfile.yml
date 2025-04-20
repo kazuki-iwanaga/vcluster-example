@@ -4,6 +4,8 @@ env:
   KIND_CONFIG: kind.config.yaml
   NGF_VALUES: values/ngf/values.yaml
   NGF_NAMESPACE: nginx-gateway
+  VCLUSTER_NAME: my-vcluster
+  VCLUSTER_NAMESPACE: my-vcluster
 tasks:
   default:
     desc: Show the available tasks
@@ -32,3 +34,15 @@ tasks:
   hello:
     desc: Curl for the hello app
     cmd: curl --resolve host-hello.example.com:80:127.0.0.1 http://host-hello.example.com
+  vcluster:create:
+    desc: Create a vcluster
+    cmd: vcluster create {{.VCLUSTER_NAME}} --namespace {{.VCLUSTER_NAMESPACE}}
+  vcluster:delete:
+    desc: Delete the vcluster
+    cmd: vcluster delete {{.VCLUSTER_NAME}} --namespace {{.VCLUSTER_NAMESPACE}}
+  vcluster:connect:
+    desc: Connect to the vcluster
+    cmd: vcluster connect {{.VCLUSTER_NAME}}
+  vcluster:disconnect:
+    desc: Disconnect from the vcluster
+    cmd: vcluster disconnect
